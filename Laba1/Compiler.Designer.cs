@@ -496,7 +496,7 @@
             this.buttonErrors.TabIndex = 3;
             this.buttonErrors.Text = "Ошибки";
             this.buttonErrors.UseVisualStyleBackColor = true;
-            this.buttonErrors.Visible = false;
+            this.buttonErrors.Click += new System.EventHandler(this.buttonErrors_Click);
             // 
             // buttonTethrads
             // 
@@ -504,9 +504,9 @@
             this.buttonTethrads.Name = "buttonTethrads";
             this.buttonTethrads.Size = new System.Drawing.Size(100, 24);
             this.buttonTethrads.TabIndex = 2;
-            this.buttonTethrads.Text = "Тетрады";
+            this.buttonTethrads.Text = "Таблица";
             this.buttonTethrads.UseVisualStyleBackColor = true;
-            this.buttonTethrads.Visible = false;
+            this.buttonTethrads.Click += new System.EventHandler(this.buttonTethrads_Click);
             // 
             // textBoxErrors
             // 

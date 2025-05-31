@@ -1,8 +1,216 @@
-﻿/*using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Windows.Forms;
 
-public class ParseError
+namespace Laba1
+{
+    public class Parser
+    {
+        private List<Token> tokens;
+        private int position = 0;
+        private RichTextBox outputBox;
+        private RichTextBox errorBox;
+
+        public Parser(List<Token> tokens, RichTextBox outputBox, RichTextBox errorBox)
+        {
+            this.tokens = tokens;
+            this.outputBox = outputBox;
+            this.errorBox = errorBox;
+        }
+
+        private Token CurrentToken => position < tokens.Count ? tokens[position] : null;
+
+        private void LogEnter(string method)
+        {
+            outputBox.AppendText($"[Вход] в {method}\r\n");
+        }
+
+        private void LogExit(string method, bool withError = false)
+        {
+            if (withError)
+                errorBox.AppendText($"[Выход] из {method} (с ошибкой)\r\n");
+            else
+                outputBox.AppendText($"[Выход] из {method}\r\n");
+        }
+
+        private void LogSuccess(string message)
+        {
+            outputBox.AppendText($"[Успех] {message}\r\n");
+        }
+
+        private void LogError(string message)
+        {
+            errorBox.AppendText($"[Ошибка] {message}\r\n");
+        }
+
+        private bool Match(TokenType expected)
+        {
+            if (CurrentToken.Type == expected)
+            {
+                LogSuccess($"совпадение {CurrentToken.Type} ('{CurrentToken.Lexeme}')");
+                position++;
+                return true;
+            }
+            else
+            {
+                LogError($"ожидался тип {expected}, а найден {CurrentToken.Type} ('{CurrentToken.Lexeme}')");
+                return false;
+            }
+        }
+
+        public void ParseS()
+        {
+            LogEnter("ParseS");
+            bool error = false;
+
+            if (!ParseNP())
+            {
+                LogError("ParseS: ожидался NP");
+                error = true;
+            }
+            if (!ParseVP())
+            {
+                LogError("ParseS: ожидался VP");
+                error = true;
+            }
+            LogExit("ParseS", error);
+        }
+
+        public bool ParseNP()
+        {
+            LogEnter("ParseNP");
+            int startPos = position;
+
+            if (Match(TokenType.Pro))
+            {
+                LogExit("ParseNP");
+                return true;
+            }
+            position = startPos;
+
+            if (Match(TokenType.PropN))
+            {
+                LogExit("ParseNP");
+                return true;
+            }
+            position = startPos;
+
+            if (Match(TokenType.Det))
+            {
+                if (Match(TokenType.A))
+                {
+                    if (ParseNom())
+                    {
+                        LogExit("ParseNP");
+                        return true;
+                    }
+                }
+                else if (ParseNom())
+                {
+                    LogExit("ParseNP");
+                    return true;
+                }
+            }
+
+            position = startPos;
+            LogExit("ParseNP", true);
+            return false;
+        }
+
+        public bool ParseNom()
+        {
+            LogEnter("ParseNom");
+            int startPos = position;
+
+            if (!Match(TokenType.N))
+            {
+                position = startPos;
+                LogExit("ParseNom", true);
+                return false;
+            }
+
+            // Попытка парсить Nom после N (рекурсивно)
+            while (true)
+            {
+                int ppStart = position;
+                if (ParsePP())
+                {
+                    // продолжаем
+                }
+                else if (Match(TokenType.N))
+                {
+                    // продолжаем
+                }
+                else
+                {
+                    position = ppStart;
+                    break;
+                }
+            }
+
+            LogExit("ParseNom");
+            return true;
+        }
+
+        public bool ParseVP()
+        {
+            LogEnter("ParseVP");
+            int startPos = position;
+
+            if (!Match(TokenType.V))
+            {
+                position = startPos;
+                LogExit("ParseVP", true);
+                return false;
+            }
+
+            if (ParseNP())
+            {
+                ParsePP(); // опционально
+                LogExit("ParseVP");
+                return true;
+            }
+            else if (ParsePP())
+            {
+                LogExit("ParseVP");
+                return true;
+            }
+            else
+            {
+                LogExit("ParseVP");
+                return true; // или false — зависит от твоих требований
+            }
+        }
+
+        public bool ParsePP()
+        {
+            LogEnter("ParsePP");
+            int startPos = position;
+
+            if (Match(TokenType.P))
+            {
+                if (ParseNP())
+                {
+                    LogExit("ParsePP");
+                    return true;
+                }
+                else
+                {
+                    LogError("ParsePP: ожидался NP после P");
+                    LogExit("ParsePP", true);
+                    return false;
+                }
+            }
+
+            position = startPos;
+            LogExit("ParsePP", true);
+            return false;
+        }
+    }
+
+}
+/*public class ParseError
 {
     public string Message { get; }
     public char Symbol { get; }
@@ -247,9 +455,9 @@ public class ListParser
 
     private bool IsDigit(char c)
         => (c >= '0' && c <= '9');
-}
-*/
-
+}*/
+/*6 лаба*/
+/*
 using System;
 using System.Collections.Generic;
 
@@ -475,5 +683,4 @@ namespace TetradApp
             Advance();
             return string.Empty;
         }
-    }
-}
+    }*/

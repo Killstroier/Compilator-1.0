@@ -6,17 +6,18 @@ using System.Linq;
 using System.Net.NetworkInformation;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
-using TetradApp;
 
 namespace Laba1
 {
     public partial class Compiler : Form
     {
+        
         private string currentFile = string.Empty;
+        /*
         private static readonly Regex PassportRx = new Regex(@"\b\d{4}[-\s]?\d{6}\b");
         private static readonly Regex CommentRx = new Regex(@"(?s)(\"""".*?\""""|'''.*?''')", RegexOptions.Singleline);
         private static readonly Regex HslRx = new Regex(@"\bhsl\(\s*(?:3[0-5]\d|360|[12]?\d{1,2})\s*,\s*(?:100|[1-9]?\d)%\s*,\s*(?:100|[1-9]?\d)%\s*\)");
-
+        */
         public Compiler()
         {
             InitializeComponent();
@@ -27,10 +28,8 @@ namespace Laba1
         private void SetupGrid()
         {
             dataGridViewoutput.Columns.Clear();
-            dataGridViewoutput.Columns.Add("Type", "Тип");
-            dataGridViewoutput.Columns.Add("Match", "Совпадение");
-            dataGridViewoutput.Columns.Add("Position", "Позиция");
-            dataGridViewoutput.Columns.Add("Valid", "Корректность");
+            dataGridViewoutput.Columns.Add("Type", "Тип токена");
+            dataGridViewoutput.Columns.Add("Lexeme", "Лексема");
         }
 
         /*ФАЙЛ*/
@@ -394,8 +393,9 @@ namespace Laba1
             }*/
 
             /*5 лаба*/
-            /*
+
             // сброс подсветки
+            /*
             richTextBox1.SelectAll();
             richTextBox1.SelectionBackColor = Color.White;
             textBoxErrors.Clear();
@@ -441,10 +441,10 @@ namespace Laba1
 
             foreach (var q in parser.Quads)
                 dataGridViewoutput.Rows.Add(q.Op, q.Arg1, q.Arg2, q.Result);
-            */
+            
       
             /* 6 лаба */
-            SetupGrid();
+            /*SetupGrid();
             string text = richTextBox1.Text;
             textBoxErrors.Visible = false;
             dataGridViewoutput.Visible = true;
@@ -452,7 +452,28 @@ namespace Laba1
             Search(PassportRx, "Паспорт", ValidatePassport);
             Search(CommentRx, "PY-коммент", s => HasBalancedQuotes(s) && s.Length > 6);
             Search(HslRx, "HSL-код", ValidateHsl);
-            
+            */
+            // Очистка
+            dataGridViewoutput.Rows.Clear();
+            textBoxErrors.Clear();
+            dataGridViewoutput.Visible = true;
+            textBoxErrors.Visible = false;
+
+            string input = richTextBox1.Text;
+            var lexer = new Lexer(textBoxErrors);
+            var tokens = lexer.Tokenize(input);
+
+            // Вывод токенов в dataGridView
+            foreach (var token in tokens)
+            {
+                dataGridViewoutput.Rows.Add(token.Type.ToString(), token.Lexeme);
+            }
+
+            textBoxErrors.AppendText("----- Начало разбора -----\r\n");
+            var parser = new Parser(tokens, textBoxErrors, textBoxErrors);
+            parser.ParseS();
+            textBoxErrors.AppendText("----- Разбор завершён -----\r\n");
+
         }
 
         private void Search(Regex rx, string type, Func<string, bool> validator)
@@ -498,7 +519,7 @@ namespace Laba1
             }
         }
 
-        /*private void buttonTethrads_Click(object sender, EventArgs e)
+        private void buttonTethrads_Click(object sender, EventArgs e)
         {
             textBoxErrors.Visible = false;
             dataGridViewoutput.Visible = true;
@@ -508,7 +529,7 @@ namespace Laba1
         {
             dataGridViewoutput.Visible = false;
             textBoxErrors.Visible = true;
-        }*/
+        }
 
         private void ClearHighlights()
         {
